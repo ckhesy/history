@@ -1,3 +1,27 @@
+
+// // history基本用法是这样的:
+// import { createBrowserHistory } from 'history';
+
+// const history = createBrowserHistory();
+
+// // 获取当前location。
+// const location = history.location;
+
+// // 监听当前location的更改。
+// const unlisten = history.listen((location, action) => {
+//   // location是一个类似window.location的对象
+//   console.log(action, location.pathname, location.state);
+// });
+
+// // 使用push、replace和go来导航。
+// history.push('/home', { some: 'state' });
+
+// // 若要停止监听，请调用listen()返回的函数.
+// unlisten();
+
+
+
+
 type Events<F> = {
   length: number;
   push: (fn: F) => () => void;
@@ -47,6 +71,15 @@ function createBrowserHistory() {
   const history = {
     listen(listener) {
       return listeners.push(listener);
+    },
+    push(url){
+      // 注意pushState和replaceState并不会触发popstate
+      // 依然这样做，为了保持state栈的一致性
+      const history = window.history;
+      history.pushState(null,'',url);
+      // 由于push 不能出发popstate，需要我们手动调用回调函数
+      location = {pathname: url};
+      listeners.call(location);
     },
     location
   }
